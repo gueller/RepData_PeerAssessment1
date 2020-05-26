@@ -5,7 +5,6 @@ output:
     keep_md: true
 ---
 
-
 ## Loading and preprocessing the data
 
 In this section we will check to see if the package is downloaded from the course site, unzip it, and read the csv into R.
@@ -213,3 +212,37 @@ There was very little difference between when the NA's were dropped and the NA's
 ## Are there differences in activity patterns between weekdays and weekends?
 
 
+```r
+data3 <- data2
+
+data3$day <- ""
+data3$day <- weekdays(data2$date, abbreviate = FALSE)
+
+weekday <- subset(data3, day == "Monday" | day == "Tuesday" |
+    day == "Wednesday" | day == "Thursday" | day == "Friday",
+    select = c("interval", "steps", "date", "day"))
+weekend <- subset(data3, day == "Saturday" | day == "Sunday",
+    select = c("interval", "steps", "date", "day"))
+
+weekdayIntAvg <- aggregate(weekday$steps, by = list(weekday$interval),
+    FUN = mean)
+names(weekdayIntAvg) <- c("interval", "steps")
+weekdayIntAvg$desig <- "weekday"
+
+weekendIntAvg <- aggregate(weekend$steps, by = list(weekend$interval),
+    FUN = mean)
+names(weekendIntAvg) <- c("interval", "steps")
+weekendIntAvg$desig <- "weekend"
+
+data4 <- rbind(weekdayIntAvg, weekendIntAvg)
+
+ggplot(data4, aes(x = interval, y=steps))+
+    geom_line(color = "dark blue") +
+    facet_grid(rows = vars(desig)) +
+    theme_bw() +
+    theme(strip.background =element_rect(fill="chocolate2")) +
+    labs(title = "Interval Averages - Weekend and Weekday", 
+          x = "5-Minute Interval", y = "Number of Steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
